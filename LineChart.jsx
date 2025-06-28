@@ -8,11 +8,9 @@ import {
   LineElement,
   Tooltip
 } from 'chart.js';
-
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip);
 
 const LineChart = ({ coinHistory, currentPrice, coinName }) => {
-  // Debugging logs
   console.log('Rendering LineChart with:', { 
     coinHistory, 
     hasHistory: !!coinHistory?.data?.history 
