@@ -1,57 +1,54 @@
-
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { Col, Row, Typography } from 'antd';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip
+} from 'chart.js';
 
-const { Title } = Typography;
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip);
 
 const LineChart = ({ coinHistory, currentPrice, coinName }) => {
-  const coinPrice = [];
-  const coinTimestamp = [];
+  // Debugging logs
+  console.log('Rendering LineChart with:', { 
+    coinHistory, 
+    hasHistory: !!coinHistory?.data?.history 
+  });
 
-  for (let i = 0; i < coinHistory?.data?.history?.length; i += 1) {
-    coinPrice.push(coinHistory?.data?.history[i].price);
-  }
+  if (!coinHistory) return <div>Waiting for API response...</div>;
+  if (!coinHistory.data?.history) return <div>No price history available</div>;
 
-  for (let i = 0; i < coinHistory?.data?.history?.length; i += 1) {
-    coinTimestamp.push(new Date(coinHistory?.data?.history[i].timestamp).toLocaleDateString());
-  }
-  const data = {
-    labels: coinTimestamp,
-    datasets: [
-      {
-        label: 'Price In USD',
-        data: coinPrice,
-        fill: false,
-        backgroundColor: '#0071bd',
-        borderColor: '#0071bd',
-      },
-    ],
-  };
-
-  const options = {
-    scales: {
-      yAxes: [
-        {
-          ticks: {
-            beginAtZero: true,
-          },
-        },
-      ],
-    },
+  const chartData = {
+    labels: coinHistory.data.history.map(h => 
+      new Date(h.timestamp * 1000).toLocaleDateString()
+    ),
+    datasets: [{
+      label: `${coinName} Price`,
+      data: coinHistory.data.history.map(h => parseFloat(h.price)),
+      borderColor: '#0071bd',
+      borderWidth: 2
+    }]
   };
 
   return (
-    <>
-      <Row className="chart-header">
-        <Title level={2} className="chart-title">{coinName} Price Chart </Title>
-        <Col className="price-container">
-          <Title level={5} className="price-change">Change: {coinHistory?.data?.change}%</Title>
-          <Title level={5} className="current-price">Current {coinName} Price: $ {currentPrice}</Title>
-        </Col>
-      </Row>
-      <Line data={data} options={options} />
-    </>
+    <div style={{ height: '400px', marginTop: '20px' }}>
+      <Line 
+        data={chartData}
+        options={{
+          responsive: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (context) => `$${context.parsed.y.toLocaleString()}`
+              }
+            }
+          }
+        }}
+      />
+    </div>
   );
 };
 
