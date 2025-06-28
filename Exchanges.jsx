@@ -1,53 +1,50 @@
 import React from 'react';
+import { Row, Col, Typography, Avatar, Collapse } from 'antd';
 import millify from 'millify';
-import { Collapse, Row, Col, Typography, Avatar } from 'antd';
-import HTMLReactParser from 'html-react-parser';
-
-import { useGetExchangesQuery } from '../services/cryptoApi';
 import Loader from './Loader';
+import { useGetExchangesQuery } from '../services/cryptoExchangeApi';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
 
 const Exchanges = () => {
-  const { data, isFetching } = useGetExchangesQuery();
-  const exchangesList = data?.data?.exchanges;
- // Note: To access this endpoint you need premium plan
+  const { data: exchangesList, isFetching } = useGetExchangesQuery();
+
   if (isFetching) return <Loader />;
 
   return (
     <>
-      <Row>
-        <Col span={6}>Exchanges</Col>
-        <Col span={6}>24h Trade Volume</Col>
-        <Col span={6}>Markets</Col>
-        <Col span={6}>Change</Col>
+      <Row className="exchange-heading">
+        <Col span={6}><Text strong>Exchange</Text></Col>
+        <Col span={6}><Text strong>Trust Score</Text></Col>
+        <Col span={6}><Text strong>Volume (24h)</Text></Col>
+        <Col span={6}><Text strong>Year Established</Text></Col>
       </Row>
+
       <Row>
-        {/* {exchangesList.map((exchange) => (
-          <Col span={24}>
+        {exchangesList?.map((exchange) => (
+          <Col span={24} key={exchange.id}>
             <Collapse>
               <Panel
-                key={exchange.uuid}
                 showArrow={false}
-                header={(
-                  <Row key={exchange.uuid}>
+                header={
+                  <Row align="middle">
                     <Col span={6}>
-                      <Text><strong>{exchange.rank}.</strong></Text>
-                      <Avatar className="exchange-image" src={exchange.iconUrl} />
-                      <Text><strong>{exchange.name}</strong></Text>
+                      <Avatar src={exchange.image} />
+                      <Text strong style={{ marginLeft: 10 }}>{exchange.name}</Text>
                     </Col>
-                    <Col span={6}>${millify(exchange.volume)}</Col>
-                    <Col span={6}>{millify(exchange.numberOfMarkets)}</Col>
-                    <Col span={6}>{millify(exchange.marketShare)}%</Col>
+                    <Col span={6}>{exchange.trust_score || 'N/A'}</Col>
+                    <Col span={6}>${millify(exchange.trade_volume_24h_btc || 0)} BTC</Col>
+                    <Col span={6}>{exchange.year_established || 'N/A'}</Col>
                   </Row>
-                  )}
+                }
               >
-                {HTMLReactParser(exchange.description || '')}
+                <p><strong>Country:</strong> {exchange.country || 'Unknown'}</p>
+                <p><a href={exchange.url} target="_blank" rel="noreferrer">Visit Website</a></p>
               </Panel>
             </Collapse>
           </Col>
-        ))} */}
+        ))}
       </Row>
     </>
   );
