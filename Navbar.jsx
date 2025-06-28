@@ -19,7 +19,7 @@ const Navbar = () => {
     const handleResize = () => setScreenSize(window.innerWidth);
 
     window.addEventListener('resize', handleResize);
-    handleResize(); // initialize
+    handleResize(); 
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
